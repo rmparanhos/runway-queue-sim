@@ -56,12 +56,12 @@ def simulator(tam_fila,capacidade_servico,taxa_chegada): #taxas em segundos!!!
     nfila = 0 # NAO É O TAMANHO DA FILA DE EVENTOS!!!!!!!!!!!!!!!!!!!!!
     nchegada = 0
     nsaida = 0
-    fila_eventos = [["chegada",t]]#4
+    fila_eventos = [["req_decolagem",t]] #1 e 2]]#4 chegada = req_decolagem
     c = []
     s = []
     while(t<3600):#5
         evento_atual = fila_eventos.pop(0)
-        if(evento_atual[0]=="chegada"):#3
+        if(evento_atual[0]=="req_decolagem"):#3
             t = evento_atual[1]
             if nfila < tam_fila:
                 c.append(t)
@@ -69,7 +69,7 @@ def simulator(tam_fila,capacidade_servico,taxa_chegada): #taxas em segundos!!!
                 nchegada += 1
             x = congruentelinearexpX(4294967296, 134775813, 1,1/taxa_chegada) #1 e 2
             # x = np.random.exponential(0.09)
-            fila_eventos.append(["chegada",t+x])#4
+            fila_eventos.append(["req_decolagem",t+x])#4
             if nfila == 1:
                 y = congruentelinearexpY(4294967296, 134775813, 1, 1/capacidade_servico)#1 e 2
                 # y = np.random.exponential(0.11)
@@ -84,6 +84,7 @@ def simulator(tam_fila,capacidade_servico,taxa_chegada): #taxas em segundos!!!
                 #y = np.random.exponential(0.11)
                 fila_eventos.append(["saida",t+y])#4
         fila_eventos.sort(key=lambda teste: teste[1])#4
+        print(fila_eventos)
         print(nfila)
     return c,s
 
