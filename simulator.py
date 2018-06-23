@@ -1,8 +1,11 @@
-import time
 from math import log
 import numpy as np
 import matplotlib.pyplot as plt
-import random
+
+
+seedX = 571294189234
+seedY = 103495101020
+
 
 def congruentelinear(m, a, c, seed, n_iter):
     resp = []
@@ -13,13 +16,29 @@ def congruentelinear(m, a, c, seed, n_iter):
     return resp
 
 
-def congruentelinearexp(m, a, c, seed, n_iter, l):
+def lista_congruentelinearexp(m, a, c, seed, n_iter, l):
     resp = []
     for i in range(0, n_iter):
         x = (a*seed+c) % m
         resp.append(log(1-x/m)/-l)
         seed = x
     return resp
+
+
+def congruentelinearexpX(m, a, c, l):
+        global seedX
+        x = (a * seedX + c) % m
+        u = log(1-x/m)/-l
+        seedX = x
+        return u
+
+
+def congruentelinearexpY(m, a, c, l):
+    global seedY
+    x = (a * seedY + c) % m
+    u = log(1 - x / m) / -l
+    seedY = x
+    return u
 
 # Hull-Dobell Theorem
 # m and the offset are relatively prime,
@@ -29,90 +48,48 @@ def congruentelinearexp(m, a, c, seed, n_iter, l):
 # print(congruentelinearexp(4294967296, 134775813, 1, 1996, 1000, 7))
 
 
-# Model components -----------------------------
 
-class Aviao:
+# E[X]=0,09 segundos, lambda = 11.11
+# E[C]=0,11 segundos, lambda = 9.09
+t = 0
+nfila = 0 # NAO É O TAMANHO DA FILA DE EVENTOS!!!!!!!!!!!!!!!!!!!!!
+nchegada = 0
+nsaida = 0
+fila_eventos = [["chegada",t]]
+c = []
+s = []
+while(t<3600):
+    evento_atual = fila_eventos.pop(0)
+    if(evento_atual[0]=="chegada"):
+        t = evento_atual[1]
+        nfila += 1
+        nchegada += 1
+        c.append(t)
+        x = congruentelinearexpX(4294967296, 134775813, 1,11.11)
+        fila_eventos.append(["chegada",t+x])
+        if nfila == 1:
+            y = congruentelinearexpY(4294967296, 134775813, 1, 9.09)
+            fila_eventos.append(["saida",t+y])
+    else:
+        t = evento_atual[1]
+        nfila -= 1
+        nsaida += 1
+        s.append(t)
+        if nfila > 0:
+            y = congruentelinearexpY(4294967296, 134775813, 1, 9.09)
+            fila_eventos.append(["saida",t+y])
+    fila_eventos.sort(key=lambda teste: teste[1])
+    print(nfila)
 
-    def __init__(self, id):
-        self.id = id
-        self.tentrada = 0
-        self.tatendido = 0
-        self.tsaida = 0
-
-    def esperando_decolagem(self): #entra na fila
-        self.tentrada = time.time()
-
-    def comecou_decolagem(self): #sendo atendido
-        self.tatendido = time.time()
-
-    def terminou_decolagem(self): #acabou o serviço
-        self.tsaida = time.time()
-
-    def __str__(self):
-        return "Id:{} | Entrada na fila: {} | Sendo atendido: {} | Saida: {}".format(self.id, self.tentrada, self.tatendido, self.tsaida)
-
-
-class Caixa:
-
-    def __init__(self):
-        self.fila = []
-        self.decolando = 0
-        self.ids=1
-
-    def coloca_fila_decolagem(self):
-        aviao = Aviao(self.ids)
-        self.ids += 1
-        aviao.esperando_decolagem()
-        self.fila.append(aviao)
-
-    def liberado_para_decolagem(self, aviao):
-        aviao.comecou_decolagem()
-        self.fila.remove(aviao)
-        self.decolando = aviao
-
-    def decolou(self, aviao):
-        aviao.terminou_decolagem()
-        self.decolando = 0
-
-    def __str__(self):
-        for item in self.fila:
-            print(item)
-        return "Decolando: {}\n".format(self.decolando)
-
-# E[X]=5, lambda = 0.2
-aeroporto = Caixa()
-
-for i in range(1000):
-    lista_random = congruentelinearexp(4294967296, 134775813, 1, 1996, 1000, 0.2)
-    if(lista_random[i] > 0.5):
-        aeroporto.coloca_fila_decolagem()
-
-print(aeroporto)
+w = np.asarray(s[:32595]) - np.asarray(c[:32595])
+np.set_printoptions(suppress=True)
+plt.plot(w)
+plt.show()
+#i=0
+#for item in c:
+#    print(s[i]-item)
+#    i+=1
 
 
-'''
-aeroporto = Caixa()
-teste1 = Aviao(1)
-teste2 = Aviao(2)
-teste3 = Aviao(3)
-aeroporto.coloca_fila_decolagem(teste1)
-time.sleep(5)
-aeroporto.coloca_fila_decolagem(teste2)
-time.sleep(5)
-time.sleep(5)
-aeroporto.coloca_fila_decolagem(teste3)
-time.sleep(5)
-print(aeroporto)
-aeroporto.liberado_para_decolagem(teste1)
-print(aeroporto)
-time.sleep(5)
-aeroporto.liberado_para_decolagem(teste2)
-print(aeroporto)
-time.sleep(5)
-aeroporto.liberado_para_decolagem(teste3)
-print(aeroporto)
-time.sleep(5)
-aeroporto.decolou(teste1)
-print(teste1)
-'''
+
 
