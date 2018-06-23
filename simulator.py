@@ -3,7 +3,6 @@ from math import log
 import numpy as np
 import matplotlib.pyplot as plt
 import random
-import simpy as sp
 
 def congruentelinear(m, a, c, seed, n_iter):
     resp = []
@@ -80,14 +79,17 @@ class Caixa:
             print(item)
         return "Decolando: {}\n".format(self.decolando)
 
+# E[X]=5, lambda = 0.2
 aeroporto = Caixa()
 
 for i in range(1000):
-    lista_random = congruentelinearexp(4294967296, 134775813, 1, 1996, 1000, 7)
+    lista_random = congruentelinearexp(4294967296, 134775813, 1, 1996, 1000, 0.2)
     if(lista_random[i] > 0.5):
         aeroporto.coloca_fila_decolagem()
 
 print(aeroporto)
+
+
 '''
 aeroporto = Caixa()
 teste1 = Aviao(1)
