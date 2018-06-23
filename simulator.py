@@ -54,8 +54,10 @@ def congruentelinearexpY(m, a, c, l):
 def simulator(tam_fila,capacidade_servico,taxa_chegada): #taxas em segundos!!!
     t = 0
     nfila = 0 # NAO É O TAMANHO DA FILA DE EVENTOS!!!!!!!!!!!!!!!!!!!!!
+    lnfila = []
     nchegada = 0
     nsaida = 0
+    descartes = 0
     fila_eventos = [["req_decolagem",t]] #1 e 2]]#4 chegada = req_decolagem
     c = []
     s = []
@@ -63,10 +65,12 @@ def simulator(tam_fila,capacidade_servico,taxa_chegada): #taxas em segundos!!!
         evento_atual = fila_eventos.pop(0)
         if(evento_atual[0]=="req_decolagem"):#3
             t = evento_atual[1]
+            nchegada += 1
             if nfila < tam_fila:
                 c.append(t)
                 nfila += 1
-                nchegada += 1
+            else:
+                descartes += 1
             x = congruentelinearexpX(4294967296, 134775813, 1,1/taxa_chegada) #1 e 2
             # x = np.random.exponential(0.09)
             fila_eventos.append(["req_decolagem",t+x])#4
@@ -84,12 +88,15 @@ def simulator(tam_fila,capacidade_servico,taxa_chegada): #taxas em segundos!!!
                 #y = np.random.exponential(0.11)
                 fila_eventos.append(["saida",t+y])#4
         fila_eventos.sort(key=lambda teste: teste[1])#4
-        print(fila_eventos)
-        print(nfila)
-    return c,s
+        lnfila.append(nfila)
+    return c,s,lnfila,descartes,nchegada
 
-c,s = simulator(500,0.11,0.09)
-w = np.asarray(s[:32383]) - np.asarray(c[:32383])
+c,s,lnfila,descartes,nchegada = simulator(15,0.11,0.09)
+w = np.asarray(s[:32361]) - np.asarray(c[:32361])
+print(w.mean())#tempo medio no sistema
+lnfila = np.asarray(lnfila)
+print(lnfila.mean())#tamanho medio da fila
+print(descartes/nchegada)#taxa de descartes
 np.set_printoptions(suppress=True)
 plt.plot(w)
 plt.show()
